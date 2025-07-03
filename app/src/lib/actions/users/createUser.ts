@@ -2,19 +2,21 @@
 
 import { prisma } from '@/lib/prisma'
 import { UserTableData, UserFormData } from '@/types/user'
+import { CreateUserSchema } from '@/lib/validations/user'
 import { revalidatePath } from 'next/cache'
 
 export async function createUser(
   userData: UserFormData
 ): Promise<UserTableData> {
   try {
+    const validatedData = CreateUserSchema.parse(userData)
     const user = await prisma.user.create({
       data: {
-        firstName: userData.firstName,
-        lastName: userData.lastName,
-        initials: userData.initials,
-        email: userData.email,
-        status: userData.status
+        firstName: validatedData.firstName,
+        lastName: validatedData.lastName,
+        initials: validatedData.initials || null,
+        email: validatedData.email,
+        status: validatedData.status
       },
       select: {
         id: true,
@@ -44,6 +46,15 @@ export async function createUser(
     }
   } catch (error) {
     console.error('Error creating user:', error)
+
+    if (error instanceof Error && error.name === 'ZodError') {
+      throw new Error(`Validation error: ${error.message}`)
+    }
+
+    if (error instanceof Error && error.message.includes('Unique constraint')) {
+      throw new Error('Email address is already in use')
+    }
+
     throw new Error('Failed to create user')
   }
 }
