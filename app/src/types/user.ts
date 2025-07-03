@@ -1,4 +1,4 @@
-export type UserStatus = 'ACTIVE' | 'INACTIVE'
+type UserStatus = 'ACTIVE' | 'INACTIVE'
 
 export interface User {
   id: number
@@ -15,10 +15,6 @@ export interface UserFormData {
   initials: string
   email: string
   status: UserStatus
-}
-
-export interface UserUpdateData extends UserFormData {
-  id: number
 }
 
 export interface UserTableData extends User {
