@@ -10,23 +10,36 @@ import { UserFormData } from '@/types/user'
 
 export function UsersList() {
   const [selectedUser, setSelectedUser] = useState<number | null>(null)
-  const { users, isLoading, error, createUser, updateUser, deleteUser } = useUsers()
+  const { users, isLoading, error, createUser, updateUser, deleteUser } =
+    useUsers()
 
-  const handleUserClick = useCallback((userId: number) => {
-    setSelectedUser(selectedUser === userId ? null : userId)
-  }, [selectedUser])
+  const handleUserClick = useCallback(
+    (userId: number) => {
+      setSelectedUser(selectedUser === userId ? null : userId)
+    },
+    [selectedUser]
+  )
 
-  const handleCreateUser = useCallback(async (userData: UserFormData) => {
-    await createUser(userData)
-  }, [createUser])
+  const handleCreateUser = useCallback(
+    async (userData: UserFormData) => {
+      await createUser(userData)
+    },
+    [createUser]
+  )
 
-  const handleUpdateUser = useCallback(async (userId: number, userData: UserFormData) => {
-    await updateUser(userId, userData)
-  }, [updateUser])
+  const handleUpdateUser = useCallback(
+    async (userId: number, userData: UserFormData) => {
+      await updateUser(userId, userData)
+    },
+    [updateUser]
+  )
 
-  const handleDeleteUser = useCallback(async (userId: number) => {
-    await deleteUser(userId)
-  }, [deleteUser])
+  const handleDeleteUser = useCallback(
+    async (userId: number) => {
+      await deleteUser(userId)
+    },
+    [deleteUser]
+  )
 
   if (error) {
     return (
@@ -46,8 +59,8 @@ export function UsersList() {
           <CreateUserButton onCreateUser={handleCreateUser} />
         </CardHeader>
         <CardContent className="px-6 pb-6">
-          <UsersTable 
-            users={users} 
+          <UsersTable
+            users={users}
             onUserClick={handleUserClick}
             onEditUser={handleUpdateUser}
             onDeleteUser={handleDeleteUser}

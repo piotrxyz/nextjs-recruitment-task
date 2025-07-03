@@ -24,15 +24,17 @@ export async function getUsers(): Promise<UserTableData[]> {
       }
     })
 
-    return users.map((user): UserTableData => ({
-      id: user.id,
-      firstName: user.firstName || '',
-      lastName: user.lastName,
-      initials: user.initials || undefined,
-      email: user.email,
-      status: user.status as 'ACTIVE' | 'INACTIVE',
-      addressCount: user._count.addresses
-    }))
+    return users.map(
+      (user): UserTableData => ({
+        id: user.id,
+        firstName: user.firstName || '',
+        lastName: user.lastName,
+        initials: user.initials || '',
+        email: user.email,
+        status: user.status as 'ACTIVE' | 'INACTIVE',
+        addressCount: user._count.addresses
+      })
+    )
   } catch (error) {
     console.error('Error fetching users:', error)
     throw new Error('Failed to fetch users')

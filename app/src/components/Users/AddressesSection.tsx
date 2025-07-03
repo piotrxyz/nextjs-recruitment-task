@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Plus } from 'lucide-react'
 
-type AddressesSectionProps = {
+interface AddressesSectionProps {
   userId: number
 }
 

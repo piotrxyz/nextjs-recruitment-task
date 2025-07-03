@@ -34,7 +34,7 @@ import {
 const userSchema = z.object({
   firstName: z.string().min(1, 'First name is required').max(60),
   lastName: z.string().min(1, 'Last name is required').max(100),
-  initials: z.string().max(30).optional(),
+  initials: z.string().min(1, 'Initials are required').max(30),
   email: z.string().email('Invalid email format').max(100),
   status: z.enum(['ACTIVE', 'INACTIVE'])
 })
@@ -115,7 +115,7 @@ export function UserModal({
                 name="firstName"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>First Name</FormLabel>
+                    <FormLabel>First Name *</FormLabel>
                     <FormControl>
                       <Input placeholder="John" {...field} />
                     </FormControl>
@@ -144,7 +144,7 @@ export function UserModal({
               name="initials"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Initials</FormLabel>
+                  <FormLabel>Initials *</FormLabel>
                   <FormControl>
                     <Input placeholder="JD" {...field} />
                   </FormControl>

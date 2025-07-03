@@ -4,7 +4,7 @@ export interface User {
   id: number
   firstName: string
   lastName: string
-  initials?: string
+  initials: string
   email: string
   status: UserStatus
 }
@@ -12,7 +12,7 @@ export interface User {
 export interface UserFormData {
   firstName: string
   lastName: string
-  initials?: string
+  initials: string
   email: string
   status: UserStatus
 }
