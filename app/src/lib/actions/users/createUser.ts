@@ -4,7 +4,9 @@ import { prisma } from '@/lib/prisma'
 import { UserTableData, UserFormData } from '@/types/user'
 import { revalidatePath } from 'next/cache'
 
-export async function createUser(userData: UserFormData): Promise<UserTableData> {
+export async function createUser(
+  userData: UserFormData
+): Promise<UserTableData> {
   try {
     const user = await prisma.user.create({
       data: {
@@ -30,12 +32,12 @@ export async function createUser(userData: UserFormData): Promise<UserTableData>
     })
 
     revalidatePath('/')
-    
+
     return {
       id: user.id,
       firstName: user.firstName || '',
       lastName: user.lastName,
-      initials: user.initials || undefined,
+      initials: user.initials || '',
       email: user.email,
       status: user.status as 'ACTIVE' | 'INACTIVE',
       addressCount: user._count.addresses
