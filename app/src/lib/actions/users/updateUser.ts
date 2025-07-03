@@ -2,6 +2,7 @@
 
 import { prisma } from '@/lib/prisma'
 import { UserTableData, UserFormData } from '@/types/user'
+import { UpdateUserSchema, UserIdSchema } from '@/lib/validations/user'
 import { revalidatePath } from 'next/cache'
 
 export async function updateUser(
@@ -9,14 +10,17 @@ export async function updateUser(
   userData: UserFormData
 ): Promise<UserTableData> {
   try {
+    const validatedId = UserIdSchema.parse({ id: userId })
+    const validatedData = UpdateUserSchema.parse(userData)
+
     const user = await prisma.user.update({
-      where: { id: userId },
+      where: { id: validatedId.id },
       data: {
-        firstName: userData.firstName,
-        lastName: userData.lastName,
-        initials: userData.initials,
-        email: userData.email,
-        status: userData.status
+        firstName: validatedData.firstName,
+        lastName: validatedData.lastName,
+        initials: validatedData.initials || null,
+        email: validatedData.email,
+        status: validatedData.status
       },
       select: {
         id: true,
@@ -46,6 +50,22 @@ export async function updateUser(
     }
   } catch (error) {
     console.error('Error updating user:', error)
+
+    if (error instanceof Error && error.name === 'ZodError') {
+      throw new Error(`Validation error: ${error.message}`)
+    }
+
+    if (error instanceof Error && error.message.includes('Unique constraint')) {
+      throw new Error('Email address is already in use')
+    }
+
+    if (
+      error instanceof Error &&
+      error.message.includes('Record to update not found')
+    ) {
+      throw new Error('User not found')
+    }
+
     throw new Error('Failed to update user')
   }
 }

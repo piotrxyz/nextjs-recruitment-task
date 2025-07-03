@@ -6,20 +6,22 @@ import {
   enrichAddressForTable,
   normalizeCountryCode
 } from '@/lib/utils/address'
+import { updateAddressRequestSchema } from '@/lib/validations/address'
 import { revalidatePath } from 'next/cache'
 
 export async function updateAddress(
   updateData: AddressUpdateRequest
 ): Promise<AddressTableData> {
   try {
-    const targetDate = new Date(updateData.originalValidFrom)
+    const validatedData = updateAddressRequestSchema.parse(updateData)
+    const targetDate = new Date(validatedData.originalValidFrom)
     const searchBefore = new Date(targetDate.getTime() - 1000)
     const searchAfter = new Date(targetDate.getTime() + 1000)
 
     const existingRecord = await prisma.usersAddress.findFirst({
       where: {
-        userId: updateData.userId,
-        addressType: updateData.originalAddressType,
+        userId: validatedData.userId,
+        addressType: validatedData.originalAddressType,
         validFrom: {
           gte: searchBefore,
           lte: searchAfter
@@ -34,11 +36,11 @@ export async function updateAddress(
     const updateResult = await prisma.$executeRaw`
       UPDATE users_addresses 
       SET 
-        post_code = ${updateData.postCode},
-        city = ${updateData.city},
-        country_code = ${normalizeCountryCode(updateData.countryCode)},
-        street = ${updateData.street},
-        building_number = ${updateData.buildingNumber},
+        post_code = ${validatedData.postCode},
+        city = ${validatedData.city},
+        country_code = ${normalizeCountryCode(validatedData.countryCode)},
+        street = ${validatedData.street},
+        building_number = ${validatedData.buildingNumber},
         updated_at = NOW()
       WHERE 
         user_id = ${existingRecord.userId} AND 
@@ -52,8 +54,8 @@ export async function updateAddress(
     }
 
     if (
-      updateData.addressType !== existingRecord.addressType ||
-      new Date(updateData.validFrom).getTime() !==
+      validatedData.addressType !== existingRecord.addressType ||
+      new Date(validatedData.validFrom).getTime() !==
         existingRecord.validFrom.getTime()
     ) {
       await prisma.$executeRaw`
@@ -66,14 +68,14 @@ export async function updateAddress(
 
       const address = await prisma.usersAddress.create({
         data: {
-          userId: updateData.userId,
-          addressType: updateData.addressType,
-          validFrom: new Date(updateData.validFrom),
-          postCode: updateData.postCode,
-          city: updateData.city,
-          countryCode: normalizeCountryCode(updateData.countryCode),
-          street: updateData.street,
-          buildingNumber: updateData.buildingNumber
+          userId: validatedData.userId,
+          addressType: validatedData.addressType,
+          validFrom: new Date(validatedData.validFrom),
+          postCode: validatedData.postCode,
+          city: validatedData.city,
+          countryCode: normalizeCountryCode(validatedData.countryCode),
+          street: validatedData.street,
+          buildingNumber: validatedData.buildingNumber
         }
       })
 
@@ -115,6 +117,21 @@ export async function updateAddress(
     })
   } catch (error) {
     console.error('Error updating address:', error)
+
+    if (error instanceof Error && error.name === 'ZodError') {
+      throw new Error(`Validation error: ${error.message}`)
+    }
+
+    if (error instanceof Error && error.message.includes('Record not found')) {
+      throw new Error('Address not found')
+    }
+
+    if (error instanceof Error && error.message.includes('Unique constraint')) {
+      throw new Error(
+        'An address with this type and date already exists for this user'
+      )
+    }
+
     throw new Error('Failed to update address')
   }
 }
