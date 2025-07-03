@@ -1,4 +1,4 @@
-export type AddressType = 'HOME' | 'INVOICE' | 'POST' | 'WORK'
+type AddressType = 'HOME' | 'INVOICE' | 'POST' | 'WORK'
 
 export interface Address {
   userId: number
@@ -29,10 +29,6 @@ export interface AddressTableData extends Address {
   isActive: boolean
 }
 
-export interface AddressCreateData extends AddressFormData {
-  userId: number
-}
-
 export interface AddressCreateRequest {
   addressType: AddressType
   validFrom: string
@@ -42,12 +38,6 @@ export interface AddressCreateRequest {
   street: string
   buildingNumber: string
   userId: number
-}
-
-export interface AddressUpdateData extends AddressFormData {
-  userId: number
-  originalAddressType: AddressType
-  originalValidFrom: Date
 }
 
 export interface AddressUpdateRequest {

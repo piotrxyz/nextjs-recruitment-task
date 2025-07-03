@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useCallback, useMemo } from 'react'
+import { useState, useCallback, useMemo, useEffect } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import * as z from 'zod'
@@ -70,6 +70,12 @@ export function UserModal({
     resolver: zodResolver(userSchema),
     defaultValues
   })
+
+  useEffect(() => {
+    if (open) {
+      form.reset(defaultValues)
+    }
+  }, [form, defaultValues, open])
 
   const handleSubmit = useCallback(
     async (data: UserFormData) => {
