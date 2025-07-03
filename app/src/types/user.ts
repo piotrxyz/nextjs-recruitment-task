@@ -17,8 +17,6 @@ export interface UserFormData {
   status: UserStatus
 }
 
-export interface UserCreateData extends UserFormData {}
-
 export interface UserUpdateData extends UserFormData {
   id: number
 }

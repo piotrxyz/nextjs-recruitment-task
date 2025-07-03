@@ -2,7 +2,7 @@
 
 import { useState, useCallback } from 'react'
 import { Button } from '@/components/ui/button'
-import { User, UserFormData } from '@/types/user'
+import { AddressTableData, AddressFormData } from '@/types/address'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -10,19 +10,19 @@ import {
   DropdownMenuTrigger
 } from '@/components/ui/dropdown-menu'
 import { MoreHorizontal, Edit, Trash } from 'lucide-react'
-import { UserModal } from './UserModal'
+import { AddressModal } from './AddressModal'
 
-interface UserActionsMenuProps {
-  user: User
-  onEdit: (data: UserFormData) => Promise<void>
+interface AddressActionsMenuProps {
+  address: AddressTableData
+  onEdit: (data: AddressFormData) => Promise<void>
   onDelete: () => void
 }
 
-export function UserActionsMenu({
-  user,
+export function AddressActionsMenu({
+  address,
   onEdit,
   onDelete
-}: UserActionsMenuProps) {
+}: AddressActionsMenuProps) {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false)
 
   const handleEditClick = useCallback((e: React.MouseEvent) => {
@@ -41,6 +41,14 @@ export function UserActionsMenu({
   const handleTriggerClick = useCallback((e: React.MouseEvent) => {
     e.stopPropagation()
   }, [])
+
+  const handleEditSubmit = useCallback(
+    async (data: AddressFormData) => {
+      await onEdit(data)
+      setIsEditModalOpen(false)
+    },
+    [onEdit]
+  )
 
   return (
     <>
@@ -72,11 +80,11 @@ export function UserActionsMenu({
         </DropdownMenuContent>
       </DropdownMenu>
 
-      <UserModal
+      <AddressModal
         open={isEditModalOpen}
         onOpenChange={setIsEditModalOpen}
-        user={user}
-        onSubmit={onEdit}
+        address={address}
+        onSubmit={handleEditSubmit}
       />
     </>
   )

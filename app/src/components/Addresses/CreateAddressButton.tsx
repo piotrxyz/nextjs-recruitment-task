@@ -3,14 +3,16 @@
 import { useState, useCallback } from 'react'
 import { Button } from '@/components/ui/button'
 import { Plus } from 'lucide-react'
-import { UserModal } from './UserModal'
-import { UserFormData } from '@/types/user'
+import { AddressFormData } from '@/types/address'
+import { AddressModal } from './AddressModal'
 
-interface CreateUserButtonProps {
-  onCreateUser: (data: UserFormData) => Promise<void>
+interface CreateAddressButtonProps {
+  onCreateAddress: (data: AddressFormData) => Promise<void>
 }
 
-export function CreateUserButton({ onCreateUser }: CreateUserButtonProps) {
+export function CreateAddressButton({
+  onCreateAddress
+}: CreateAddressButtonProps) {
   const [isModalOpen, setIsModalOpen] = useState(false)
 
   const handleOpenModal = useCallback(() => {
@@ -21,13 +23,13 @@ export function CreateUserButton({ onCreateUser }: CreateUserButtonProps) {
     <>
       <Button onClick={handleOpenModal} className="gap-2">
         <Plus className="w-4 h-4" />
-        Create User
+        Add Address
       </Button>
 
-      <UserModal
+      <AddressModal
         open={isModalOpen}
         onOpenChange={setIsModalOpen}
-        onSubmit={onCreateUser}
+        onSubmit={onCreateAddress}
       />
     </>
   )

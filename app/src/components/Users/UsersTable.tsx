@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useMemo, useCallback } from 'react'
+import { useCallback } from 'react'
 import {
   Table,
   TableBody,
@@ -10,16 +10,10 @@ import {
   TableRow
 } from '@/components/ui/table'
 import { Badge } from '@/components/ui/badge'
-import {
-  Pagination,
-  PaginationContent,
-  PaginationItem,
-  PaginationLink,
-  PaginationNext,
-  PaginationPrevious
-} from '@/components/ui/pagination'
+import { TablePagination } from '@/components/ui/table-pagination'
 import { UserActionsMenu } from './UserActionsMenu'
 import { UserTableData, UserFormData } from '@/types/user'
+import { usePagination } from '@/hooks/usePagination'
 
 interface UsersTableProps {
   users: UserTableData[]
@@ -29,49 +23,42 @@ interface UsersTableProps {
   isLoading?: boolean
 }
 
-export function UsersTable({ users, onUserClick, onEditUser, onDeleteUser, isLoading }: UsersTableProps) {
-  const [currentPage, setCurrentPage] = useState(1)
-  const itemsPerPage = 10
+export function UsersTable({
+  users,
+  onUserClick,
+  onEditUser,
+  onDeleteUser,
+  isLoading
+}: UsersTableProps) {
+  const {
+    currentPage,
+    totalPages,
+    currentItems: currentUsers,
+    setCurrentPage
+  } = usePagination({
+    items: users,
+    itemsPerPage: 10
+  })
 
-  const { totalPages, currentUsers } = useMemo(() => {
-    const totalPages = Math.ceil(users.length / itemsPerPage)
-    const startIndex = (currentPage - 1) * itemsPerPage
-    const currentUsers = users.slice(startIndex, startIndex + itemsPerPage)
-    return { totalPages, currentUsers }
-  }, [users, currentPage, itemsPerPage])
+  const handleUserClick = useCallback(
+    (userId: number) => {
+      onUserClick(userId)
+    },
+    [onUserClick]
+  )
 
-  const handleUserClick = useCallback((userId: number) => {
-    onUserClick(userId)
-  }, [onUserClick])
+  const handleUserEdit = useCallback(
+    async (userId: number, data: UserFormData) => {
+      await onEditUser(userId, data)
+    },
+    [onEditUser]
+  )
 
-  const handleUserEdit = useCallback(async (userId: number, data: UserFormData) => {
-    await onEditUser(userId, data)
-  }, [onEditUser])
-
-  const handleUserDelete = useCallback(async (userId: number) => {
-    await onDeleteUser(userId)
-  }, [onDeleteUser])
-
-  const handlePreviousPage = useCallback(() => {
-    setCurrentPage(Math.max(1, currentPage - 1))
-  }, [currentPage])
-
-  const handleNextPage = useCallback(() => {
-    setCurrentPage(Math.min(totalPages, currentPage + 1))
-  }, [totalPages, currentPage])
-
-  const handlePageClick = useCallback((page: number) => {
-    setCurrentPage(page)
-  }, [])
-
-  const paginationItems = useMemo(() => 
-    Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
-      const page = i + 1
-      return {
-        page,
-        isActive: currentPage === page
-      }
-    }), [totalPages, currentPage]
+  const handleUserDelete = useCallback(
+    async (userId: number) => {
+      await onDeleteUser(userId)
+    },
+    [onDeleteUser]
   )
 
   if (isLoading && users.length === 0) {
@@ -122,7 +109,9 @@ export function UsersTable({ users, onUserClick, onEditUser, onDeleteUser, isLoa
                 <TableCell className="py-4">
                   <UserActionsMenu
                     user={user}
-                    onEdit={(data: UserFormData) => handleUserEdit(user.id, data)}
+                    onEdit={(data: UserFormData) =>
+                      handleUserEdit(user.id, data)
+                    }
                     onDelete={() => handleUserDelete(user.id)}
                   />
                 </TableCell>
@@ -132,47 +121,11 @@ export function UsersTable({ users, onUserClick, onEditUser, onDeleteUser, isLoa
         </Table>
       </div>
 
-      {totalPages > 1 && (
-        <div className="flex justify-center">
-          <Pagination>
-            <PaginationContent>
-              <PaginationItem>
-                <PaginationPrevious
-                  onClick={handlePreviousPage}
-                  className={
-                    currentPage === 1
-                      ? 'pointer-events-none opacity-50'
-                      : 'cursor-pointer'
-                  }
-                />
-              </PaginationItem>
-
-              {paginationItems.map(({ page, isActive }) => (
-                <PaginationItem key={page}>
-                  <PaginationLink
-                    onClick={() => handlePageClick(page)}
-                    isActive={isActive}
-                    className="cursor-pointer"
-                  >
-                    {page}
-                  </PaginationLink>
-                </PaginationItem>
-              ))}
-
-              <PaginationItem>
-                <PaginationNext
-                  onClick={handleNextPage}
-                  className={
-                    currentPage === totalPages
-                      ? 'pointer-events-none opacity-50'
-                      : 'cursor-pointer'
-                  }
-                />
-              </PaginationItem>
-            </PaginationContent>
-          </Pagination>
-        </div>
-      )}
+      <TablePagination
+        currentPage={currentPage}
+        totalPages={totalPages}
+        onPageChange={setCurrentPage}
+      />
     </div>
   )
 }
