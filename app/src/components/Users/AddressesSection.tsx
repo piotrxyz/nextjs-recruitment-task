@@ -1,34 +1,73 @@
 'use client'
 
+import { useCallback } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
-import { Plus } from 'lucide-react'
+import { AddressesTable } from '../Addresses/AddressesTable'
+import { CreateAddressButton } from '../Addresses/CreateAddressButton'
+import {
+  AddressesProvider,
+  useAddressesContext
+} from '@/context/AddressesContext'
+import { AddressFormData } from '@/types/address'
+import { UserTableData } from '@/types/user'
 
 interface AddressesSectionProps {
-  userId: number
+  user: UserTableData
 }
 
-export function AddressesSection({ userId }: AddressesSectionProps) {
+function AddressesSectionContent({ user }: AddressesSectionProps) {
+  const {
+    addresses,
+    isLoading,
+    error,
+    createAddress,
+    updateAddress,
+    deleteAddress
+  } = useAddressesContext()
+
+  const handleCreateAddress = useCallback(
+    async (data: AddressFormData) => {
+      await createAddress(data)
+    },
+    [createAddress]
+  )
+
+  if (error) {
+    return (
+      <Card>
+        <CardContent className="p-6">
+          <div className="text-red-500">Error: {error}</div>
+        </CardContent>
+      </Card>
+    )
+  }
+
   return (
-    <Card>
-      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-6">
-        <CardTitle className="text-xl font-semibold">
-          Addresses for User {userId}
+    <Card className="w-full">
+      <CardHeader className="flex flex-col space-y-4 sm:flex-row sm:items-center sm:justify-between sm:space-y-0 pb-6">
+        <CardTitle className="text-lg sm:text-xl font-semibold">
+          Addresses for {user.firstName} {user.lastName}
         </CardTitle>
-        <Button variant="outline" className="gap-2">
-          <Plus className="w-4 h-4" />
-          Add Address
-        </Button>
+        <CreateAddressButton onCreateAddress={handleCreateAddress} />
       </CardHeader>
-      <CardContent className="px-6 pb-6">
-        <div className="text-center py-12 text-muted-foreground">
-          <p className="text-lg mb-2">No addresses found</p>
-          <p className="text-sm">
-            Click &quot;Add Address&quot; to create the first address for this
-            user.
-          </p>
+      <CardContent className="px-3 sm:px-6 pb-6">
+        <div className="overflow-x-auto">
+          <AddressesTable
+            addresses={addresses}
+            onEditAddress={updateAddress}
+            onDeleteAddress={deleteAddress}
+            isLoading={isLoading}
+          />
         </div>
       </CardContent>
     </Card>
+  )
+}
+
+export function AddressesSection({ user }: AddressesSectionProps) {
+  return (
+    <AddressesProvider userId={user.id}>
+      <AddressesSectionContent user={user} />
+    </AddressesProvider>
   )
 }

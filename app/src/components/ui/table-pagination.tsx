@@ -15,11 +15,11 @@ interface TablePaginationProps {
   maxVisiblePages?: number
 }
 
-export function TablePagination({ 
-  currentPage, 
-  totalPages, 
+export function TablePagination({
+  currentPage,
+  totalPages,
   onPageChange,
-  maxVisiblePages = 5 
+  maxVisiblePages = 5
 }: TablePaginationProps) {
   const handlePreviousPage = useCallback(() => {
     onPageChange(Math.max(1, currentPage - 1))

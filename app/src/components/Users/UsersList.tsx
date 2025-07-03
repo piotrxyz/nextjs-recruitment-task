@@ -1,23 +1,30 @@
 'use client'
 
-import { useState, useCallback } from 'react'
+import { useCallback } from 'react'
 import { UsersTable } from './UsersTable'
 import { AddressesSection } from './AddressesSection'
 import { CreateUserButton } from './CreateUserButton'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { useUsers } from '@/hooks/useUsers'
+import { useUsersContext } from '@/context/UsersContext'
 import { UserFormData } from '@/types/user'
 
 export function UsersList() {
-  const [selectedUser, setSelectedUser] = useState<number | null>(null)
-  const { users, isLoading, error, createUser, updateUser, deleteUser } =
-    useUsers()
+  const {
+    users,
+    selectedUser,
+    isLoading,
+    error,
+    createUser,
+    updateUser,
+    deleteUser,
+    setSelectedUserId
+  } = useUsersContext()
 
   const handleUserClick = useCallback(
     (userId: number) => {
-      setSelectedUser(selectedUser === userId ? null : userId)
+      setSelectedUserId(userId)
     },
-    [selectedUser]
+    [setSelectedUserId]
   )
 
   const handleCreateUser = useCallback(
@@ -69,7 +76,7 @@ export function UsersList() {
         </CardContent>
       </Card>
 
-      {selectedUser && <AddressesSection userId={selectedUser} />}
+      {selectedUser && <AddressesSection user={selectedUser} />}
     </div>
   )
 }

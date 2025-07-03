@@ -23,23 +23,43 @@ interface UsersTableProps {
   isLoading?: boolean
 }
 
-export function UsersTable({ users, onUserClick, onEditUser, onDeleteUser, isLoading }: UsersTableProps) {
-  const { currentPage, totalPages, currentItems: currentUsers, setCurrentPage } = usePagination({
+export function UsersTable({
+  users,
+  onUserClick,
+  onEditUser,
+  onDeleteUser,
+  isLoading
+}: UsersTableProps) {
+  const {
+    currentPage,
+    totalPages,
+    currentItems: currentUsers,
+    setCurrentPage
+  } = usePagination({
     items: users,
     itemsPerPage: 10
   })
 
-  const handleUserClick = useCallback((userId: number) => {
-    onUserClick(userId)
-  }, [onUserClick])
+  const handleUserClick = useCallback(
+    (userId: number) => {
+      onUserClick(userId)
+    },
+    [onUserClick]
+  )
 
-  const handleUserEdit = useCallback(async (userId: number, data: UserFormData) => {
-    await onEditUser(userId, data)
-  }, [onEditUser])
+  const handleUserEdit = useCallback(
+    async (userId: number, data: UserFormData) => {
+      await onEditUser(userId, data)
+    },
+    [onEditUser]
+  )
 
-  const handleUserDelete = useCallback(async (userId: number) => {
-    await onDeleteUser(userId)
-  }, [onDeleteUser])
+  const handleUserDelete = useCallback(
+    async (userId: number) => {
+      await onDeleteUser(userId)
+    },
+    [onDeleteUser]
+  )
 
   if (isLoading && users.length === 0) {
     return (
@@ -89,7 +109,9 @@ export function UsersTable({ users, onUserClick, onEditUser, onDeleteUser, isLoa
                 <TableCell className="py-4">
                   <UserActionsMenu
                     user={user}
-                    onEdit={(data: UserFormData) => handleUserEdit(user.id, data)}
+                    onEdit={(data: UserFormData) =>
+                      handleUserEdit(user.id, data)
+                    }
                     onDelete={() => handleUserDelete(user.id)}
                   />
                 </TableCell>
@@ -99,7 +121,7 @@ export function UsersTable({ users, onUserClick, onEditUser, onDeleteUser, isLoa
         </Table>
       </div>
 
-      <TablePagination 
+      <TablePagination
         currentPage={currentPage}
         totalPages={totalPages}
         onPageChange={setCurrentPage}

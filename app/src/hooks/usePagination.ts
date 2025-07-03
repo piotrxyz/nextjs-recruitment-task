@@ -16,9 +16,9 @@ interface UsePaginationReturn<T> {
   hasPreviousPage: boolean
 }
 
-export function usePagination<T>({ 
-  items, 
-  itemsPerPage 
+export function usePagination<T>({
+  items,
+  itemsPerPage
 }: UsePaginationProps<T>): UsePaginationReturn<T> {
   const [currentPage, setCurrentPage] = useState(1)
 
@@ -40,7 +40,6 @@ export function usePagination<T>({
   const hasNextPage = currentPage < totalPages
   const hasPreviousPage = currentPage > 1
 
-  // Reset to first page when items change significantly
   useMemo(() => {
     if (currentPage > totalPages && totalPages > 0) {
       setCurrentPage(1)
